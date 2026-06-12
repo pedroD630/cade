@@ -19,33 +19,31 @@ export function normalize(text: string): string {
     .trim();
 }
 
-/** Verifica se `tokens` aparece como subsequência (em ordem) dentro de `words`. */
-function containsTokensInOrder(words: string[], tokens: string[]): boolean {
-  let i = 0;
-  for (const word of words) {
-    if (word === tokens[i]) {
-      i++;
-      if (i === tokens.length) return true;
-    }
-  }
-  return false;
-}
-
 /**
- * Compara a frase de ativação com as hipóteses retornadas pelo reconhecedor.
- * Aceita correspondência por substring normalizada ou por todos os tokens
- * da frase presentes em ordem (tolera palavras extras no meio).
+ * Compara a frase de ativação com as hipóteses do reconhecedor.
+ *
+ * Correspondência tolerante (espelha o serviço nativo): exige a palavra
+ * "âncora" (a mais longa, mais distintiva) presente — para não disparar com
+ * frases comuns como "cadê você" sem "celular" — e aceita perder cerca de uma
+ * palavra do restante (o reconhecimento de voz erra esporadicamente).
  */
 export function phraseMatches(phrase: string, candidates: string[]): boolean {
   const target = normalize(phrase);
   if (!target) return false;
   const targetTokens = target.split(' ');
+  const anchor = targetTokens.reduce((a, b) => (b.length > a.length ? b : a), '');
+  const threshold = Math.max(1, Math.ceil(targetTokens.length * 0.6));
 
   for (const candidate of candidates) {
     const normalized = normalize(candidate);
     if (!normalized) continue;
     if (normalized.includes(target)) return true;
-    if (containsTokensInOrder(normalized.split(' '), targetTokens)) return true;
+
+    const words = new Set(normalized.split(' '));
+    if (anchor.length >= 4 && !words.has(anchor)) continue;
+
+    const present = targetTokens.filter((token) => words.has(token)).length;
+    if (present >= threshold) return true;
   }
   return false;
 }
