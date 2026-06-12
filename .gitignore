@@ -1,0 +1,35 @@
+node_modules/
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# Pastas nativas geradas pelo prebuild (regeneráveis)
+android/
+ios/
+
+# Modelo Vosk (~50 MB) — baixado por `npm run fetch-vosk-model`, não versionado
+assets/model-pt/
+android/app/src/main/assets/model-pt/
+
+# Metro
+.metro-health-check*
+
+# Debug
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# macOS
+.DS_Store
+*.pem
+
+# IDEs
+.idea/
+.vscode/
+
+# local env files
+.env*.local
+
+# typescript
+*.tsbuildinfo

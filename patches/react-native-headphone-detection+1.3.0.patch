@@ -1,0 +1,32 @@
+diff --git a/node_modules/react-native-headphone-detection/android/src/main/java/com/tintef/RNHeadphoneDetection/RNHeadphoneDetectionModule.java b/node_modules/react-native-headphone-detection/android/src/main/java/com/tintef/RNHeadphoneDetection/RNHeadphoneDetectionModule.java
+index fe8c926..a1a7595 100644
+--- a/node_modules/react-native-headphone-detection/android/src/main/java/com/tintef/RNHeadphoneDetection/RNHeadphoneDetectionModule.java
++++ b/node_modules/react-native-headphone-detection/android/src/main/java/com/tintef/RNHeadphoneDetection/RNHeadphoneDetectionModule.java
+@@ -67,11 +67,22 @@ public class RNHeadphoneDetectionModule extends ReactContextBaseJavaModule imple
+       }
+     };
+ 
+-    reactContext.registerReceiver(receiver, new IntentFilter(Intent.ACTION_HEADSET_PLUG));
+-    reactContext.registerReceiver(receiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
+-    reactContext.registerReceiver(receiver, new IntentFilter(BluetoothAdapter.EXTRA_STATE));
+-    reactContext.registerReceiver(receiver, new IntentFilter(BluetoothDevice.ACTION_ACL_CONNECTED));
+-    reactContext.registerReceiver(receiver, new IntentFilter(BluetoothDevice.ACTION_ACL_DISCONNECTED));
++    registerCompat(new IntentFilter(Intent.ACTION_HEADSET_PLUG));
++    registerCompat(new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
++    registerCompat(new IntentFilter(BluetoothAdapter.EXTRA_STATE));
++    registerCompat(new IntentFilter(BluetoothDevice.ACTION_ACL_CONNECTED));
++    registerCompat(new IntentFilter(BluetoothDevice.ACTION_ACL_DISCONNECTED));
++  }
++
++  // Patch: Android 13+ (API 33) exige RECEIVER_EXPORTED/NOT_EXPORTED ao
++  // registrar receivers que nao sao exclusivos de system broadcasts.
++  private void registerCompat(IntentFilter filter) {
++    final ReactApplicationContext reactContext = getReactApplicationContext();
++    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
++      reactContext.registerReceiver(receiver, filter, Context.RECEIVER_NOT_EXPORTED);
++    } else {
++      reactContext.registerReceiver(receiver, filter);
++    }
+   }
+ 
+   private void maybeUnregisterReceiver() {
