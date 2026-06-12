@@ -1,0 +1,59 @@
+{
+  "expo": {
+    "name": "Cadê?",
+    "slug": "cade",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "cade",
+    "newArchEnabled": false,
+    "userInterfaceStyle": "light",
+    "platforms": [
+      "ios",
+      "android"
+    ],
+    "assetBundlePatterns": [
+      "assets/**/*"
+    ],
+    "ios": {
+      "bundleIdentifier": "com.cade.app",
+      "supportsTablet": false,
+      "infoPlist": {
+        "NSMicrophoneUsageDescription": "O Cadê? usa o microfone apenas para reconhecer a frase de ativação. Nenhum áudio é gravado ou enviado.",
+        "NSSpeechRecognitionUsageDescription": "O Cadê? usa o reconhecimento de voz do próprio aparelho para detectar a frase de ativação. Todo o processamento acontece no seu celular.",
+        "UIBackgroundModes": [
+          "audio"
+        ]
+      }
+    },
+    "android": {
+      "package": "com.cade.app",
+      "edgeToEdgeEnabled": true,
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.FOREGROUND_SERVICE",
+        "android.permission.FOREGROUND_SERVICE_MICROPHONE",
+        "android.permission.POST_NOTIFICATIONS",
+        "android.permission.VIBRATE",
+        "android.permission.WAKE_LOCK"
+      ]
+    },
+    "plugins": [
+      [
+        "@react-native-voice/voice",
+        {
+          "microphonePermission": "O Cadê? usa o microfone apenas para reconhecer a frase de ativação. Nenhum áudio é gravado ou enviado.",
+          "speechRecognitionPermission": "O Cadê? usa o reconhecimento de voz do próprio aparelho. Todo o processamento acontece localmente."
+        }
+      ],
+      "expo-asset",
+      [
+        "expo-notifications",
+        {
+          "color": "#0F766E"
+        }
+      ],
+      "./plugins/withJetifier.js",
+      "./plugins/withHeadphoneSdkFix.js"
+    ]
+  }
+}
