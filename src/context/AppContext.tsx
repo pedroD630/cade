@@ -46,6 +46,13 @@ interface AppContextValue {
 
 const AppContext = createContext<AppContextValue | null>(null);
 
+/**
+ * Janela após parar o alarme em que novas detecções são ignoradas. Evita o
+ * duplo disparo quando a detecção residual (ou uma 2ª fala) chega logo após
+ * o usuário silenciar.
+ */
+const ALARM_RETRIGGER_COOLDOWN_MS = 2000;
+
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [loaded, setLoaded] = useState(false);
   const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
@@ -64,6 +71,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   ringingRef.current = ringing;
   // Estava ouvindo no momento em que o app foi para background? (decide o aviso)
   const wasListeningRef = useRef(false);
+  // Timestamp do último "parar alarme" — base do cooldown anti-duplo-disparo.
+  const lastAlarmStopRef = useRef(0);
 
   // ---- Carga inicial (O03) ----
   useEffect(() => {
@@ -122,6 +131,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   // ---- Alarme ----
   const triggerAlarm = useCallback(async () => {
     if (ringingRef.current) return;
+    // Ignora re-disparo logo após parar (detecção residual / 2ª fala).
+    if (Date.now() - lastAlarmStopRef.current < ALARM_RETRIGGER_COOLDOWN_MS) return;
     ringingRef.current = true;
     setRinging(true);
     try {
@@ -133,6 +144,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const stopRinging = useCallback(async () => {
     await stopAlarm();
+    lastAlarmStopRef.current = Date.now();
     ringingRef.current = false;
     setRinging(false);
   }, []);
